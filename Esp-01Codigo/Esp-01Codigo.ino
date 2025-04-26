@@ -1,3 +1,6 @@
+//Primeiro Commit: Mandado o código para o github.
+//SPIFFS: Adicionado a biblioteca FS.h para usar SPIFFS
+
 /* o endereço: http://192.168.4.1/   */
 
 #include "FS.h"
@@ -8,6 +11,9 @@
 
 #define Modelo DHT11
 
+String getContentType(String filename);
+bool handleFileRead(String path);
+
 const char *nome_da_rede = "Agrinho2025";
 const char *senha = "123456789";
 
@@ -17,7 +23,6 @@ uint8_t Pino_SensorUmidade = 2;
 uint8_t Pino_SensorSolo = 3;
 uint8_t Pino_SensorChuva = 0;
 uint8_t Pino_Valvula = 1;
-
 
 DHT dht(Pino_SensorUmidade, Modelo);
 
@@ -43,9 +48,13 @@ void setup()
   WiFi.softAP(nome_da_rede, senha);
   Serial.println(WiFi.localIP());
   //fazer a função pagina_requisitada quando somonelse colocar o endereço
-  servidor.on("/", Pagina_Requisitada);
-  //caso contrário:
-  servidor.onNotFound(Pagina_Inexistente);
+  SPIFFS.begin();
+
+  //mandar a pagina:
+  servidor.onNotFound([]() {                              
+    if (!handleFileRead(servidor.uri()))                  
+      servidor.send(404, "text/plain", "404: Não encontrado");
+  });
   
   //iniciar servidor:
   Serial.println("Iniciando servidor.");
@@ -56,7 +65,7 @@ void loop()
   servidor.handleClient();
 }
 
-void Pagina_Requisitada() {
+/*void Pagina_Requisitada() {
   Temp = dht.readTemperature();
   Umid = dht.readHumidity();
   SoloUmi = digitalRead(Pino_SensorSolo);
@@ -126,4 +135,26 @@ String Monta_HTML(float temp, float umid, float solo, bool chu) {
   ptr += "</body>\n";
   ptr += "</html>\n";
   return ptr;
+}*/
+
+String getContentType(String filename) { // convert the file extension to the MIME type
+  if (filename.endsWith(".html")) return "text/html";
+  else if (filename.endsWith(".css")) return "text/css";
+  else if (filename.endsWith(".js")) return "application/javascript";
+  else if (filename.endsWith(".ico")) return "image/x-icon";
+  return "text/plain";
+}
+
+bool handleFileRead(String path) { // send the right file to the client (if it exists)
+  Serial.println("handleFileRead: " + path);
+  if (path.endsWith("/")) path += "index.html";         // If a folder is requested, send the index file
+  String contentType = getContentType(path);            // Get the MIME type
+  if (SPIFFS.exists(path)) {                            // If the file exists
+    File file = SPIFFS.open(path, "r");                 // Open it
+    size_t sent = servidor.streamFile(file, contentType); // And send it to the client
+    file.close();                                       // Then close the file again
+    return true;
+  }
+  Serial.println("\tFile Not Found");
+  return false;                                         // If the file doesn't exist, return false
 }
