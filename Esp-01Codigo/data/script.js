@@ -28,9 +28,9 @@ connection.onmessage = function (e) {
       SolObj.innerHTML = "Solo: Molhado";
     }
     if(datas[3] == 1) {
-      SolObj.innerHTML = "Chuva: Não";
+      ChuObj.innerHTML = "Chuva: Não";
     } else {
-      SolObj.innerHTML = "Chuva: Sim";
+      ChuObj.innerHTML = "Chuva: Sim";
     }
   } else if(recording) {
     datas.push(e.data);

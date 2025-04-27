@@ -4,6 +4,67 @@
     font-family: Arial;
 }
 
+.Vazio {
+    flex: 5;
+    background-color: #fff0;
+}
+
 body {
-    background-color: antiquewhite;
+    background-color: #fff;
+}
+
+header {
+    background-color: #1E6EE6;
+    color: #fff;
+    padding-top: 20px;
+    border-bottom: 5px solid #376CBB;
+    box-shadow: 0px 10px 15px 0px #bbb;
+}
+header div {
+    flex: 1;
+    margin-left: 20px;
+    margin-right: 20px;
+    margin-bottom: 20px;
+}
+header canvas {
+    background-color: #436291;
+}
+
+#Main {
+    padding: 50px;
+    padding-left: 17vw;
+    padding-right: 17vw;
+}
+#Main .Bloco {
+    margin-bottom: 10vh;
+    padding: 10px;
+    border-radius:  10px;
+    border: 1px solid #bbb;
+    box-shadow: 5px 5px 15px 0px #bbb;
+}
+#Main .Bloco p {
+    margin: 10px;
+}
+
+footer {
+    display: flex;
+    flex-direction: row;
+    background-color: #2B2E33;
+    color: #fff;
+    padding: 40px;
+}
+footer div {
+    flex: 1;
+    background-color: #2F343C;
+    border-radius: 10px;
+    margin: 10px;
+    padding: 10px;
+    display: flex;
+    flex-direction: column;
+}
+footer h1 {
+    margin-bottom: 10px;
+}
+footer a {
+    margin: 2px;
 }
