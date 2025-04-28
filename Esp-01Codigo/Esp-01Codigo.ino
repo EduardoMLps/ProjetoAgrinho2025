@@ -1,6 +1,8 @@
 //Primeiro Commit: Mandado o código para o github.
 //SPIFFS: Adicionado a biblioteca FS.h para usar SPIFFS
 //WebSocket: Adicionado a biblioteca WebSocketsServer.h para se comunicar com a página.
+//Design: Melhorado o design da página.
+//Auto data: Esp mandará dados automáticamente para a página.
 
 /* o endereço: http://192.168.4.1/   */
 
@@ -63,6 +65,9 @@ void setup()
   Serial.println("Iniciando servidor.");
   servidor.begin();
 }
+
+unsigned long tickAntigo = millis();
+uint8_t tempoDeEnvio = 10000;
 void loop()
 {
   webSocket.loop();
@@ -72,6 +77,12 @@ void loop()
   Umid = dht.readHumidity();
   SoloUmi = digitalRead(Pino_SensorSolo);
   Chuva = digitalRead(Pino_SensorChuva);
+  
+  //Enviar dados a cada 10 segundos:
+  if(millis() > tickAntigo + tempoDeEnvio) {
+    enviarDados();
+    tickAntigo = millis();
+  }
 }
 
 String getContentType(String filename) { // convert the file extension to the MIME type
@@ -129,20 +140,7 @@ void eventoWebSocket(uint8_t num, WStype_t type, uint8_t * payload, size_t lengh
         IPAddress ip = webSocket.remoteIP(num);
         Serial.printf("[%u] Connected from %d.%d.%d.%d url: %s\n", num, ip[0], ip[1], ip[2], ip[3], payload);
 
-        char S[15];
-
-        String TempC = String(floatToString(Temp, S, sizeof(S), 1));
-        String UmidC = String(floatToString(Umid, S, sizeof(S), 1));
-        String SoloUmiC = String(SoloUmi);
-        String ChuvaC = String(Chuva);
-
-        // send message to client
-        webSocket.sendTXT(num, ".");
-        webSocket.sendTXT(num, TempC);
-        webSocket.sendTXT(num, UmidC);
-        webSocket.sendTXT(num, SoloUmiC);
-        webSocket.sendTXT(num, ChuvaC);
-        webSocket.sendTXT(num, ":");
+        enviarDados();
       }
       break;
     case WStype_TEXT:
@@ -167,4 +165,21 @@ void eventoWebSocket(uint8_t num, WStype_t type, uint8_t * payload, size_t lengh
       // webSocket.sendBIN(num, payload, lenght);
       break;
   }
+}
+
+void enviarDados() {
+  char S[15];
+
+  String TempC = String(floatToString(Temp, S, sizeof(S), 1));
+  String UmidC = String(floatToString(Umid, S, sizeof(S), 1));
+  String SoloUmiC = String(SoloUmi);
+  String ChuvaC = String(Chuva);
+
+  // mandar mensagem:
+  webSocket.broadcastTXT(".");
+  webSocket.broadcastTXT(TempC);
+  webSocket.broadcastTXT(UmidC);
+  webSocket.broadcastTXT(SoloUmiC);
+  webSocket.broadcastTXT(ChuvaC);
+  webSocket.broadcastTXT(":");
 }

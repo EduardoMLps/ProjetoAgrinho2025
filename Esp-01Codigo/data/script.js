@@ -17,6 +17,7 @@ connection.onmessage = function (e) {
   console.log('Server: ', e.data);
   if(e.data == ".") {
     recording = true;    
+    datas = [];
   }
   else if(e.data == ":") {
     recording = false;
