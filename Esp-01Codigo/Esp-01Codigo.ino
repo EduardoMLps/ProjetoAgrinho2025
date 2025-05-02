@@ -3,6 +3,7 @@
 //WebSocket: Adicionado a biblioteca WebSocketsServer.h para se comunicar com a página.
 //Design: Melhorado o design da página.
 //Auto data: Esp mandará dados automáticamente para a página.
+//mDNS: adicionado a livraria mDNS para link customizado.
 
 /* o endereço: http://192.168.4.1/   */
 
@@ -10,6 +11,7 @@
 #include <ESP8266WiFi.h>
 #include <WiFiClient.h>
 #include <ESP8266WebServer.h>
+#include <ESP8266mDNS.h>
 #include <DHT.h>
 #include <WebSocketsServer.h>
 #include <floatToString.h>
@@ -51,6 +53,8 @@ void setup()
 
   iniciarWiFi();
 
+  iniciarmDNS();
+
   iniciarSPIFFS();
 
   iniciarWebSocket();
@@ -66,21 +70,25 @@ void setup()
   servidor.begin();
 }
 
-unsigned long tickAntigo = millis();
-uint8_t tempoDeEnvio = 10000;
+unsigned long tickAntigo = 0;
+const long tempoDeEnvio = 1000;
 void loop()
 {
+  unsigned long currentTick = millis();
+  
   webSocket.loop();
   servidor.handleClient();
-
-  Temp = dht.readTemperature();
-  Umid = dht.readHumidity();
-  SoloUmi = digitalRead(Pino_SensorSolo);
-  Chuva = digitalRead(Pino_SensorChuva);
   
   //Enviar dados a cada 10 segundos:
-  if(millis() > tickAntigo + tempoDeEnvio) {
+  if(currentTick - tickAntigo >= tempoDeEnvio) {
+    
+    Temp = dht.readTemperature();
+    Umid = dht.readHumidity();
+    SoloUmi = digitalRead(Pino_SensorSolo);
+    Chuva = digitalRead(Pino_SensorChuva);
+
     enviarDados();
+    
     tickAntigo = millis();
   }
 }
@@ -119,6 +127,14 @@ void iniciarWiFi() {
   Serial.println(WiFi.localIP());
 }
 
+void iniciarmDNS() {
+  if (!MDNS.begin("esp8266")) {
+    Serial.println("Error setting up MDNS responder!");
+  }
+  MDNS.addService("http", "tcp", 80);
+  Serial.println("mDNS responder started");
+}
+
 void iniciarSPIFFS() {
   Serial.println("Começando SPIFFS.");
   SPIFFS.begin();
@@ -139,8 +155,6 @@ void eventoWebSocket(uint8_t num, WStype_t type, uint8_t * payload, size_t lengh
       {
         IPAddress ip = webSocket.remoteIP(num);
         Serial.printf("[%u] Connected from %d.%d.%d.%d url: %s\n", num, ip[0], ip[1], ip[2], ip[3], payload);
-
-        enviarDados();
       }
       break;
     case WStype_TEXT:
