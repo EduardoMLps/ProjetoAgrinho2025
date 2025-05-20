@@ -4,6 +4,7 @@
 //Design: Melhorado o design da página.
 //Auto data: Esp mandará dados automáticamente para a página.
 //mDNS: adicionado a livraria mDNS para link customizado.
+//Graphs: criado a função para criar gráficos na página.
 
 /* o endereço: http://192.168.4.1/   */
 
