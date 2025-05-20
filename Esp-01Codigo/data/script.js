@@ -26,7 +26,7 @@ const marginBottom = 10;
 
 function resetAllCanvas() {
   setGraphicCanvas(Canvas1, ctx1, 8, 15, 5, "C°", "s", 1);
-  setGraphicCanvas(Canvas2, ctx2, 6, 15, 20, "%", "s");
+  setGraphicCanvas(Canvas2, ctx2, 6, 15, 20, "%", "s", 2);
 }
 
 function setGraphicCanvas(canvas, ctx, rows, columns, res, char1, char2, id) {
@@ -46,19 +46,18 @@ function setGraphicCanvas(canvas, ctx, rows, columns, res, char1, char2, id) {
     ctx.lineTo((canvas.width - marginRight) + marginLeft, rowHeight);
     ctx.stroke();
   }
-  var lastInfoPos = (canvas.height - marginBottom) - 0;
   for(var i = 0; i<columns; i++) {
     var dataTime = null;
     var dataInfo = 0;
-    var dataInfoPos = (canvas.height - marginBottom) - 0;
+    var dataInfoPos = valueYPosition(0, canvas, rows, res);
     if(datas[columns-i-1]) {
       dataTime = datas[columns - i - 1][0];
       dataInfo = datas[columns - i - 1][id];
-      dataInfoPos = (canvas.height - marginBottom) - dataInfo * canvas.height/rows/res;
+      dataInfoPos = valueYPosition(dataInfo, canvas, rows, res);
     }
     var radius = 4;
     
-    var columPos = i/columns * (canvas.width - marginRight) + marginLeft;
+    var columPos = valueXPosition(i, canvas, columns);
     
     ctx.textAlign = "center";
     ctx.fillStyle = "#000";
@@ -79,8 +78,36 @@ function setGraphicCanvas(canvas, ctx, rows, columns, res, char1, char2, id) {
     ctx.fillStyle = "#000"
     ctx.stroke();
   }
-  
-  //set the line points and draw them
+  ctx.closePath();
+
+  ctx.beginPath();
+  ctx.moveTo(valueXPosition(0, canvas, columns), valueYPosition(0, canvas, rows, res));
+  ctx.strokeStyle = "#4ba8fa";
+  for(var i = 0; i<columns; i++) {
+    //get data value.
+    var data = 0;
+    if(datas[columns-i-1]) {
+      data = datas[columns - i - 1][id];
+    }
+
+    //get corresponding position.
+    var Xpos = valueXPosition(i, canvas, columns);
+    var Ypos = valueYPosition(data, canvas, rows, res);
+
+    //draw the line.
+    ctx.lineTo(Xpos, Ypos);
+    ctx.stroke();
+  }
+  ctx.closePath();
+}
+
+function valueYPosition(data, canvas, rows, res) {
+  var val = (canvas.height - marginBottom) - data * canvas.height/rows/res;
+  return val;
+}
+function valueXPosition(data, canvas, columns) {
+  var val = data/columns * (canvas.width - marginRight) + marginLeft;
+  return val;
 }
 
 resetAllCanvas();

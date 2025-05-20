@@ -5,7 +5,8 @@
 //Auto data: Esp mandará dados automáticamente para a página.
 //mDNS: adicionado a livraria mDNS para link customizado.
 //Graphs: criado a função para criar gráficos na página.
-//Valvula: 
+//Valvula: adicionado botão 'valvula' para abrir a valvula do circuito.
+//Linhas: adicionado linhas para os gráficos na página.
 
 /* o endereço: http://192.168.4.1/   */
 
