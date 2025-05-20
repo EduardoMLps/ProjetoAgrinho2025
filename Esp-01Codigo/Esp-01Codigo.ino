@@ -5,6 +5,7 @@
 //Auto data: Esp mandará dados automáticamente para a página.
 //mDNS: adicionado a livraria mDNS para link customizado.
 //Graphs: criado a função para criar gráficos na página.
+//Valvula: 
 
 /* o endereço: http://192.168.4.1/   */
 
@@ -45,10 +46,12 @@ void setup()
   Serial.begin(9600);
   Serial.println("Configurando circuito.");
   pinMode(Pino_SensorSolo, FUNCTION_3);
+  pinMode(Pino_Valvula, FUNCTION_3);
 
   pinMode(Pino_SensorUmidade, INPUT);
   pinMode(Pino_SensorSolo, INPUT);
   pinMode(Pino_SensorChuva, INPUT);
+  pinMode(Pino_Valvula, OUTPUT);
 
   iniciarSensores();
 
@@ -164,6 +167,7 @@ void eventoWebSocket(uint8_t num, WStype_t type, uint8_t * payload, size_t lengh
       switch(payload[0]) {
         case 'V':
         Serial.println("Abrir a valvula");
+        digitalWrite(Pino_Valvula, HIGH);
         break;
       }
       // send message to client

@@ -55,6 +55,24 @@ header canvas {
 #Main .Bloco canvas {
     border-radius: 5px;
 }
+#Main .Bloco button {
+    border: none;
+    background-color: #bbb;
+    color: white;
+    border-radius: 3px;
+    padding: 5px;
+    box-shadow: 0px 3px 0px 0px #999;
+}
+#Main .Bloco button:hover {
+    cursor: pointer;
+    background-color: #aaa;
+}
+#Main .Bloco button:active {
+    cursor: pointer;
+    background-color: #555;
+    box-shadow: none;
+    margin-top: 3px;
+}
 
 footer {
     display: flex;
