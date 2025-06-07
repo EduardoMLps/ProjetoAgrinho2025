@@ -25,8 +25,8 @@ const marginRight = 50;
 const marginBottom = 10;
 
 function resetAllCanvas() {
-  setGraphicCanvas(Canvas1, ctx1, 8, 15, 5, "C°", "s", 1);
-  setGraphicCanvas(Canvas2, ctx2, 6, 15, 20, "%", "s", 2);
+  setGraphicCanvas(Canvas1, ctx1, 6, 15, 20, "%", "s", 2);
+  setGraphicCanvas(Canvas2, ctx2, 8, 15, 5, "C°", "s", 1);
 }
 
 function setGraphicCanvas(canvas, ctx, rows, columns, res, char1, char2, id) {
@@ -125,16 +125,18 @@ connection.onerror = function (error) {
 };
 connection.onmessage = function (e) {
   //array para o display
-  
+  console.log(e.data);
   //sinal para começar a gravar o que recebe do esp
   if(e.data == ".") {
     recording = true;
+    newArray.map(parseFloat);
     newArray.push(Date.now());
   }
 
   //caso termine de gravar então mostrar a informação
   else if(e.data == ":") {
     recording = false;
+    //console.log(newArray);
     datas.push(newArray);
     TemObj.innerHTML = "Temperatura: " + newArray[1] + "°C";
     UmiObj.innerHTML = "Umidade: " + newArray[2] + "%";

@@ -7,6 +7,7 @@
 //Graphs: criado a função para criar gráficos na página.
 //Valvula: adicionado botão 'valvula' para abrir a valvula do circuito.
 //Linhas: adicionado linhas para os gráficos na página.
+//BugFix1: adicionado prints para depuração
 
 /* o endereço: http://192.168.4.1/   */
 
@@ -33,9 +34,8 @@ WebSocketsServer webSocket(81);
 uint8_t Pino_SensorUmidade = 2;
 uint8_t Pino_SensorSolo = 3;
 uint8_t Pino_SensorChuva = 0;
-uint8_t Pino_Valvula = 1;
 
-DHT dht(Pino_SensorUmidade, Modelo);
+DHT novoDht(Pino_SensorUmidade, Modelo);
 
 //Variaveis:
 float Temp;
@@ -47,22 +47,20 @@ void setup()
   Serial.begin(9600);
   Serial.println("Configurando circuito.");
   pinMode(Pino_SensorSolo, FUNCTION_3);
-  pinMode(Pino_Valvula, FUNCTION_3);
 
   pinMode(Pino_SensorUmidade, INPUT);
   pinMode(Pino_SensorSolo, INPUT);
   pinMode(Pino_SensorChuva, INPUT);
-  pinMode(Pino_Valvula, OUTPUT);
-
-  iniciarSensores();
 
   iniciarWiFi();
 
-  iniciarmDNS();
+  //iniciarmDNS();
 
   iniciarSPIFFS();
 
   iniciarWebSocket();
+  
+  iniciarSensores();
 
   //mandar a pagina:
   servidor.onNotFound([]() {
@@ -83,15 +81,22 @@ void loop()
   
   webSocket.loop();
   servidor.handleClient();
+
+  SoloUmi = digitalRead(Pino_SensorSolo);
+  Chuva = digitalRead(Pino_SensorChuva);
   
   //Enviar dados a cada 10 segundos:
   if(currentTick - tickAntigo >= tempoDeEnvio) {
-    
-    Temp = dht.readTemperature();
-    Umid = dht.readHumidity();
-    SoloUmi = digitalRead(Pino_SensorSolo);
-    Chuva = digitalRead(Pino_SensorChuva);
-
+    Temp = novoDht.readTemperature();
+    Umid = novoDht.readHumidity();
+    if(isnan(Temp)) {
+      Serial.println("error: no 'Temp'");
+      Temp = 0;
+    }
+    if(isnan(Umid)) {
+      Serial.println("error: no 'Umid'");
+      Umid = 0;
+    }
     enviarDados();
     
     tickAntigo = millis();
@@ -122,7 +127,7 @@ bool handleFileRead(String path) { // send the right file to the client (if it e
 
 void iniciarSensores() {
   Serial.println("Iniciando sensores.");
-  dht.begin();
+  novoDht.begin();
 }
 
 void iniciarWiFi() {
@@ -168,7 +173,6 @@ void eventoWebSocket(uint8_t num, WStype_t type, uint8_t * payload, size_t lengh
       switch(payload[0]) {
         case 'V':
         Serial.println("Abrir a valvula");
-        digitalWrite(Pino_Valvula, HIGH);
         break;
       }
       // send message to client
@@ -194,6 +198,11 @@ void enviarDados() {
   String UmidC = String(floatToString(Umid, S, sizeof(S), 1));
   String SoloUmiC = String(SoloUmi);
   String ChuvaC = String(Chuva);
+
+  Serial.println(TempC);
+  Serial.println(UmidC);
+  Serial.println(Temp);
+  Serial.println(Umid);
 
   // mandar mensagem:
   webSocket.broadcastTXT(".");
