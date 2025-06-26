@@ -31,11 +31,13 @@ const char *senha = "123456789";
 ESP8266WebServer servidor(80);
 WebSocketsServer webSocket(81);
 
+File fsUploadFile;
+
 uint8_t Pino_SensorUmidade = 2;
 uint8_t Pino_SensorSolo = 3;
 uint8_t Pino_SensorChuva = 0;
 
-DHT novoDht(Pino_SensorUmidade, Modelo);
+DHT dht(Pino_SensorUmidade, Modelo);
 
 //Variaveis:
 float Temp;
@@ -84,11 +86,12 @@ void loop()
 
   SoloUmi = digitalRead(Pino_SensorSolo);
   Chuva = digitalRead(Pino_SensorChuva);
+  Temp = dht.readTemperature();
+  Umid = dht.readHumidity();
   
   //Enviar dados a cada 10 segundos:
   if(currentTick - tickAntigo >= tempoDeEnvio) {
-    Temp = novoDht.readTemperature();
-    Umid = novoDht.readHumidity();
+    
     if(isnan(Temp)) {
       Serial.println("error: no 'Temp'");
       Temp = 0;
@@ -127,7 +130,7 @@ bool handleFileRead(String path) { // send the right file to the client (if it e
 
 void iniciarSensores() {
   Serial.println("Iniciando sensores.");
-  novoDht.begin();
+  dht.begin();
 }
 
 void iniciarWiFi() {
@@ -199,10 +202,10 @@ void enviarDados() {
   String SoloUmiC = String(SoloUmi);
   String ChuvaC = String(Chuva);
 
-  Serial.println(TempC);
-  Serial.println(UmidC);
-  Serial.println(Temp);
-  Serial.println(Umid);
+  //Serial.println(TempC);
+  //Serial.println(UmidC);
+  //Serial.println(Temp);
+  //Serial.println(Umid);
 
   // mandar mensagem:
   webSocket.broadcastTXT(".");
