@@ -86,11 +86,12 @@ void loop()
 
   SoloUmi = digitalRead(Pino_SensorSolo);
   Chuva = digitalRead(Pino_SensorChuva);
-  Temp = dht.readTemperature();
-  Umid = dht.readHumidity();
   
-  //Enviar dados a cada 10 segundos:
+  //Enviar dados a cada 1 segundos:
   if(currentTick - tickAntigo >= tempoDeEnvio) {
+
+    Temp = dht.readTemperature();
+    Umid = dht.readHumidity();
     
     if(isnan(Temp)) {
       Serial.println("error: no 'Temp'");

@@ -47,12 +47,12 @@ function setGraphicCanvas(canvas, ctx, rows, columns, res, char1, char2, id) {
     ctx.stroke();
   }
   for(var i = 0; i<columns; i++) {
-    var dataTime = null;
+    var dataTime = columns - i;
     var dataInfo = 0;
     var dataInfoPos = valueYPosition(0, canvas, rows, res);
-    if(datas[columns-i-1]) {
-      dataTime = datas[columns - i - 1][0];
-      dataInfo = datas[columns - i - 1][id];
+    if(datas[(datas.length - columns) + i - 1]) {
+      //dataTime = datas[columns - i - 1][0];
+      dataInfo = datas[(datas.length - columns) + i - 1][id];
       dataInfoPos = valueYPosition(dataInfo, canvas, rows, res);
     }
     var radius = 4;
@@ -62,7 +62,7 @@ function setGraphicCanvas(canvas, ctx, rows, columns, res, char1, char2, id) {
     ctx.textAlign = "center";
     ctx.fillStyle = "#000";
     if(dataTime) {
-      ctx.fillText(String(Math.floor((dataTime - timeOnLoaded)/1000)) + char2, columPos, canvas.height);
+      ctx.fillText(String(dataTime) + char2, columPos, canvas.height);
     } else {
       ctx.fillText(String(0) + char2, columPos, canvas.height);
     }
@@ -86,8 +86,8 @@ function setGraphicCanvas(canvas, ctx, rows, columns, res, char1, char2, id) {
   for(var i = 0; i<columns; i++) {
     //get data value.
     var data = 0;
-    if(datas[columns-i-1]) {
-      data = datas[columns - i - 1][id];
+    if(datas[(datas.length - columns) + i - 1]) {
+      data = datas[(datas.length - columns) + i - 1][id];
     }
 
     //get corresponding position.
@@ -95,6 +95,9 @@ function setGraphicCanvas(canvas, ctx, rows, columns, res, char1, char2, id) {
     var Ypos = valueYPosition(data, canvas, rows, res);
 
     //draw the line.
+    //if(i = 0) {
+    //  ctx.moveTo(valueXPosition(Xpos, canvas, columns), valueYPosition(Ypos, canvas, rows, res));
+    //}
     ctx.lineTo(Xpos, Ypos);
     ctx.stroke();
   }
