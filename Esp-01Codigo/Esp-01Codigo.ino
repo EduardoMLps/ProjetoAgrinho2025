@@ -36,6 +36,7 @@ File fsUploadFile;
 uint8_t Pino_SensorUmidade = 2;
 uint8_t Pino_SensorSolo = 3;
 uint8_t Pino_SensorChuva = 0;
+uint8_t Pino_Bomba = 1;
 
 DHT dht(Pino_SensorUmidade, Modelo);
 
@@ -49,11 +50,12 @@ void setup()
   Serial.begin(9600);
   Serial.println("Configurando circuito.");
   pinMode(Pino_SensorSolo, FUNCTION_3);
+  pinMode(Pino_Bomba, FUNCTION_3);
 
   pinMode(Pino_SensorUmidade, INPUT);
   pinMode(Pino_SensorSolo, INPUT);
   pinMode(Pino_SensorChuva, INPUT);
-
+  pinMode(Pino_Bomba, OUTPUT);
   iniciarWiFi();
 
   //iniciarmDNS();
@@ -177,6 +179,9 @@ void eventoWebSocket(uint8_t num, WStype_t type, uint8_t * payload, size_t lengh
       switch(payload[0]) {
         case 'V':
         Serial.println("Abrir a valvula");
+        digitalWrite(Pino_Bomba, HIGH);
+        delay(1000);
+        digitalWrite(Pino_Bomba, LOW);
         break;
       }
       // send message to client
